@@ -1,0 +1,6 @@
+steps:
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Release aar'
+    inputs:
+      PathtoPublish: 'TEFeatureToggles/build/outputs/aar/TEFeatureToggles-release.aar'
+      ArtifactName: 'FFSdk'

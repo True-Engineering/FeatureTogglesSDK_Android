@@ -1,0 +1,7 @@
+steps:
+  - task: Gradle@2
+    displayName: 'Clean'
+    inputs:
+      tasks: 'TEFeatureToggles:clean'
+      publishJUnitResults: false
+      gradleOptions: '-Xmx3072m'

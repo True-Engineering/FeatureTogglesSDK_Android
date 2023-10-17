@@ -1,0 +1,20 @@
+pool:
+  name: 'ETR-SHARED-POOL'
+  demands:
+    - Agent.OS -equals Linux
+    - AndroidSDK
+    - java
+
+trigger:
+  - none
+
+steps:
+  # Установка версии JAVA
+  - template: steps/javahome_version.yml
+  # Очистка перед прогоном сборки
+  - template: steps/clean.yml
+  # Сборка версии приложения
+  - template: steps/assemble_release.yml
+  # Копирование артефактов сборки в артефакты пайплайна
+  - template: steps/publish_artifacts_release.yml
+
