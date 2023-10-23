@@ -43,7 +43,7 @@ private val client = Retrofit.Builder()
   ).build()
 ```
 
-## Installation
+## Установка
 
 Добавьте в `settings.gradle`
 ```kotlin
@@ -65,6 +65,10 @@ private val client = Retrofit.Builder()
 	}
 ```
 
-## Technology stack
+## License
+
+This library is licensed under the Apache 2.0 License. See the LICENSE and NOTION files for more info.
+
+## Технологический стек
 - **Kotlin 1.8.10**
 - **Okhttp3 4.10.0**
