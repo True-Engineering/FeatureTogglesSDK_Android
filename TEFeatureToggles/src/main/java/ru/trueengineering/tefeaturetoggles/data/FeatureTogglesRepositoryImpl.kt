@@ -42,7 +42,6 @@ internal class FeatureTogglesRepositoryImpl(
         service.loadFeatureToggles()?.let {
             lock.write {
                 storage.saveHash(it.hash)
-                storage.clear()
                 storage.saveFlags(it.flags)
             }
         }
