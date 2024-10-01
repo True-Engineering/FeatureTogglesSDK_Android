@@ -1,9 +1,7 @@
 package ru.trueengineering.tefeaturetoggles.data
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.trueengineering.tefeaturetoggles.data.storage.model.SdkFlag
 import ru.trueengineering.tefeaturetoggles.domain.FeatureFlagService
 import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesRepository
@@ -14,29 +12,25 @@ import kotlin.concurrent.write
 
 internal class FeatureTogglesRepositoryImpl(
     private val storage: FeatureTogglesStorage,
-    private val service: FeatureFlagService,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val service: FeatureFlagService
 ) : FeatureTogglesRepository {
 
     private val lock = ReentrantReadWriteLock()
+    private val checkHashMutex = Mutex()
 
-    override fun checkHash(hash: String?) {
-        lock.read {
+    override suspend fun checkHash(hash: String?) {
+        checkHashMutex.withLock {
             if (storage.getHash() != hash) {
-                updateFeatureToggles()
+                loadFeaturesFromRemote()
             }
         }
     }
 
-    override fun getByName(name: String): SdkFlag? = lock.read { storage.getByName(name) }
+    override fun getByName(name: String): SdkFlag? = lock.read {
+        storage.getByName(name)
+    }
 
     override fun getFlags(): List<SdkFlag> = lock.read { storage.getFlags() }
-
-    private fun updateFeatureToggles() {
-        CoroutineScope(ioDispatcher).launch {
-            loadFeaturesFromRemote()
-        }
-    }
 
     override suspend fun loadFeaturesFromRemote() {
         service.loadFeatureToggles()?.let {

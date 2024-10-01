@@ -5,7 +5,7 @@ internal class HashChecker(
     private val headerKey: String,
 ) {
 
-    fun obtainHash(headers: Map<String, List<String>>) {
+    suspend fun obtainHash(headers: Map<String, List<String>>) {
         val hash = headers[headerKey]?.firstOrNull()
         repository.checkHash(hash)
     }

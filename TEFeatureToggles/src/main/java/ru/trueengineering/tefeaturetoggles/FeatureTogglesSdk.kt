@@ -38,13 +38,21 @@ class FeatureTogglesSdk private constructor(
             )
         )
 
-    private val hashObtain: (Map<String, List<String>>) -> Unit
+    @Deprecated("")
+    private val hashObtain: suspend (Map<String, List<String>>) -> Unit
         get() = HashChecker(
             repository = repository,
             headerKey = headerKey
         )::obtainHash
 
     private suspend fun loadRemote() = repository.loadFeaturesFromRemote()
+
+    private suspend fun obtainHash(headers: Map<String, List<String>>) {
+        HashChecker(
+            repository = repository,
+            headerKey = headerKey
+        ).obtainHash(headers)
+    }
 
     companion object {
 
@@ -62,13 +70,20 @@ class FeatureTogglesSdk private constructor(
         val interceptor: Interceptor
             get() = INSTANCE!!.interceptor
 
-        val parser: (Map<String, List<String>>) -> Unit
+        @Deprecated("Replace with obtainHash() or obtainHashBlocking() method")
+        val parser: suspend (Map<String, List<String>>) -> Unit
             get() = INSTANCE!!.hashObtain
 
         suspend fun loadRemote() = INSTANCE!!.loadRemote()
 
         fun loadRemoteBlocking() = runBlocking {
             loadRemote()
+        }
+
+        suspend fun obtainHash(headers: Map<String, List<String>>) = INSTANCE!!.obtainHash(headers)
+
+        fun obtainHashBlocking(headers: Map<String, List<String>>) = runBlocking {
+            obtainHash(headers)
         }
     }
 
