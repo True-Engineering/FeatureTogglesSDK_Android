@@ -4,7 +4,7 @@ import ru.trueengineering.tefeaturetoggles.data.storage.model.SdkFlag
 
 internal interface FeatureTogglesRepository {
 
-    fun checkHash(hash: String?)
+    suspend fun checkHash(hash: String?)
 
     fun getByName(name: String): SdkFlag?
 
