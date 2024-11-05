@@ -18,15 +18,16 @@ import ru.trueengineering.tefeaturetoggles.domain.HashChecker
 class FeatureTogglesSdk private constructor(
     private val repository: FeatureTogglesRepository,
     private val headerKey: String,
+    private val defaultValue: Boolean,
 ) {
 
     private fun isEnabled(flag: String): Boolean =
-        repository.getByName(flag)?.isEnabled == true
+        repository.getByName(flag)?.isEnabled ?: defaultValue
 
     private fun isEnabled(flags: List<String>): Boolean =
         flags.asSequence()
             .map { repository.getByName(it) }
-            .all { it?.isEnabled == true }
+            .all { it?.isEnabled ?: defaultValue }
 
     private fun getFlags(): List<SdkFlag> = repository.getFlags()
 
@@ -94,6 +95,7 @@ class FeatureTogglesSdk private constructor(
         private var baseUrl: String? = null
         private var apiFeaturesPath: String = DEFAULT_API_FEATURES_PATH
         private var interceptors: List<Interceptor> = emptyList()
+        private var defaultValue: Boolean = false
 
         fun withInMemoryStorage(): Initializer = apply {
             check(this.storage == null) {
@@ -120,6 +122,10 @@ class FeatureTogglesSdk private constructor(
             }
 
             this.storage = storage
+        }
+
+        fun defaultValue(value: Boolean): Initializer = apply {
+            this.defaultValue = value
         }
 
         fun headerKey(headerKey: String): Initializer = apply {
@@ -152,6 +158,7 @@ class FeatureTogglesSdk private constructor(
                     )
                 ),
                 headerKey = headerKey,
+                defaultValue = defaultValue,
             ).also {
                 INSTANCE = it
             }
