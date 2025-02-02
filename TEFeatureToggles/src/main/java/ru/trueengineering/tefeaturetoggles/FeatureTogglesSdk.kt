@@ -15,6 +15,7 @@ import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesRepository
 import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesStorage
 import ru.trueengineering.tefeaturetoggles.domain.HashChecker
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class FeatureTogglesSdk private constructor(
     private val repository: FeatureTogglesRepository,
     private val headerKey: String,
@@ -45,7 +46,7 @@ class FeatureTogglesSdk private constructor(
             headerKey = headerKey
         )::obtainHash
 
-    private suspend fun loadRemote() = repository.loadFeaturesFromRemote()
+    private suspend fun loadRemote(): Result<List<SdkFlag>> = repository.loadFeaturesFromRemote()
 
     private suspend fun obtainHash(headers: Map<String, List<String>>) {
         HashChecker(
@@ -64,8 +65,11 @@ class FeatureTogglesSdk private constructor(
 
         fun isEnabled(vararg flags: String): Boolean = INSTANCE!!.isEnabled(flags.asList())
 
-        fun getFlags(): Map<String, Boolean> =
-            INSTANCE!!.getFlags().associateBy({ flag -> flag.name }) { flag -> flag.isEnabled }
+        fun getFlags(): List<SdkFlag> =
+            INSTANCE!!.getFlags()
+
+        fun getFlagsMap(): Map<String, Boolean> = getFlags()
+            .associateBy({ flag -> flag.name }) { flag -> flag.isEnabled }
 
         val interceptor: Interceptor
             get() = INSTANCE!!.interceptor
@@ -74,11 +78,9 @@ class FeatureTogglesSdk private constructor(
         val parser: suspend (Map<String, List<String>>) -> Unit
             get() = INSTANCE!!.hashObtain
 
-        suspend fun loadRemote() = INSTANCE!!.loadRemote()
+        suspend fun loadRemote(): Result<List<SdkFlag>> = INSTANCE!!.loadRemote()
 
-        fun loadRemoteBlocking() = runBlocking {
-            loadRemote()
-        }
+        fun loadRemoteBlocking(): Result<List<SdkFlag>> = runBlocking { loadRemote() }
 
         suspend fun obtainHash(headers: Map<String, List<String>>) = INSTANCE!!.obtainHash(headers)
 
