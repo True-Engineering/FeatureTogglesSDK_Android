@@ -32,12 +32,14 @@ internal class FeatureTogglesRepositoryImpl(
 
     override fun getFlags(): List<SdkFlag> = lock.read { storage.getFlags() }
 
-    override suspend fun loadFeaturesFromRemote() {
-        service.loadFeatureToggles()?.let {
-            lock.write {
-                storage.saveHash(it.hash)
-                storage.saveFlags(it.flags)
+    override suspend fun loadFeaturesFromRemote(): Result<List<SdkFlag>> {
+        return service.loadFeatureToggles()
+            .onSuccess { flagsWithHash ->
+                lock.write {
+                    storage.saveHash(flagsWithHash.hash)
+                    storage.saveFlags(flagsWithHash.flags)
+                }
             }
-        }
+            .map { it.flags }
     }
 }

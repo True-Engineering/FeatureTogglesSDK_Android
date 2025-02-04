@@ -10,5 +10,5 @@ internal interface FeatureTogglesRepository {
 
     fun getFlags(): List<SdkFlag>
 
-    suspend fun loadFeaturesFromRemote()
+    suspend fun loadFeaturesFromRemote(): Result<List<SdkFlag>>
 }
