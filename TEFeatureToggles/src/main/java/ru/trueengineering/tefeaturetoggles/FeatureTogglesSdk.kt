@@ -10,6 +10,7 @@ import ru.trueengineering.tefeaturetoggles.data.service.FeatureFlagServiceImpl
 import ru.trueengineering.tefeaturetoggles.data.storage.impl.InMemoryStorage
 import ru.trueengineering.tefeaturetoggles.data.storage.impl.SharedPreferencesStorage
 import ru.trueengineering.tefeaturetoggles.data.storage.model.SdkFlag
+import ru.trueengineering.tefeaturetoggles.domain.FeatureToggleHeadersProvider
 import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesInterceptor
 import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesRepository
 import ru.trueengineering.tefeaturetoggles.domain.FeatureTogglesStorage
@@ -96,6 +97,9 @@ class FeatureTogglesSdk private constructor(
         private var headerKey: String = DEFAULT_HEADER_KEY
         private var baseUrl: String? = null
         private var apiFeaturesPath: String = DEFAULT_API_FEATURES_PATH
+        private val headerProviders: MutableList<FeatureToggleHeadersProvider> = mutableListOf()
+
+        @Deprecated("Use headers provider")
         private var interceptors: List<Interceptor> = emptyList()
         private var defaultValue: Boolean = false
 
@@ -146,6 +150,11 @@ class FeatureTogglesSdk private constructor(
             this.apiFeaturesPath = path
         }
 
+        fun addHeadersProvider(provider: FeatureToggleHeadersProvider) = apply {
+            this.headerProviders.add(provider)
+        }
+
+        @Deprecated("Use headers provider")
         fun interceptors(interceptors: List<Interceptor>) = apply {
             this.interceptors = interceptors
         }
@@ -168,6 +177,14 @@ class FeatureTogglesSdk private constructor(
         private fun getOkHttpClient(): OkHttpClient =
             OkHttpClient.Builder().apply {
                 this@Initializer.interceptors.forEach(this::addInterceptor)
+                addInterceptor { chain ->
+                    val newRequestBuilder = chain.request().newBuilder()
+                    val headers = this@Initializer.headerProviders.flatMap { it.getHeaders() }
+                    headers.forEach { (name, value) ->
+                        newRequestBuilder.addHeader(name = name, value = value)
+                    }
+                    chain.proceed(request = newRequestBuilder.build())
+                }
             }.build()
 
         private companion object {
