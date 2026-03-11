@@ -3,6 +3,10 @@ package ru.trueengineering.tefeaturetogglessdk
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.produceIn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -25,9 +29,18 @@ class MainViewModel : ViewModel() {
 
     private val api = client.create(TestApi::class.java)
 
+    private val _error: MutableSharedFlow<Throwable> = MutableSharedFlow()
+    val error: Flow<Throwable> = _error
+        .produceIn(viewModelScope)
+        .receiveAsFlow()
+
     fun call() {
         viewModelScope.launch {
-            api.getInfo()
+            try {
+                api.getInfo()
+            } catch (t: Throwable) {
+                _error.emit(t)
+            }
         }
     }
 
