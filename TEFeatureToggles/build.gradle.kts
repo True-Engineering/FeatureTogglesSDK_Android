@@ -1,16 +1,14 @@
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android") version "1.8.10"
     `maven-publish`
 }
 
 android {
     namespace = "ru.trueengineering.tefeaturetoggles"
-    compileSdk = 33
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21 //Min sdk 21 to work with mobile registrator
-        targetSdk = 33
         aarMetadata {
             minCompileSdk = 21
         }
@@ -26,9 +24,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 
     publishing {
         singleVariant("release") {
@@ -39,12 +34,10 @@ android {
 }
 
 dependencies {
-
-    implementation("androidx.core:core-ktx:1.10.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.code.gson:gson:2.8.9")
-
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("com.squareup.okhttp3:okhttp-coroutines:5.3.2")
 }
 
 publishing {
