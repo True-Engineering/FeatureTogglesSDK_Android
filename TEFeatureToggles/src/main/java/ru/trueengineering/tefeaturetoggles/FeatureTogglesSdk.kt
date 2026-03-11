@@ -3,6 +3,7 @@ package ru.trueengineering.tefeaturetoggles
 import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
+import okhttp3.Dispatcher
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import ru.trueengineering.tefeaturetoggles.data.FeatureTogglesRepositoryImpl
@@ -97,6 +98,7 @@ class FeatureTogglesSdk private constructor(
         private var baseUrl: String? = null
         private var apiFeaturesPath: String = DEFAULT_API_FEATURES_PATH
         private var interceptors: List<Interceptor> = emptyList()
+        private var dispatcher: Dispatcher? = null
         private var defaultValue: Boolean = false
 
         fun withInMemoryStorage(): Initializer = apply {
@@ -150,6 +152,10 @@ class FeatureTogglesSdk private constructor(
             this.interceptors = interceptors
         }
 
+        fun dispatcher(dispatcher: Dispatcher) = apply {
+            this.dispatcher = dispatcher
+        }
+
         fun initialize(): FeatureTogglesSdk =
             FeatureTogglesSdk(
                 repository = FeatureTogglesRepositoryImpl(
@@ -168,6 +174,7 @@ class FeatureTogglesSdk private constructor(
         private fun getOkHttpClient(): OkHttpClient =
             OkHttpClient.Builder().apply {
                 this@Initializer.interceptors.forEach(this::addInterceptor)
+                this.dispatcher(this@Initializer.dispatcher ?: Dispatcher())
             }.build()
 
         private companion object {
