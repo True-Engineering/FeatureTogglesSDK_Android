@@ -70,5 +70,5 @@ private val client = Retrofit.Builder()
 This library is licensed under the Apache 2.0 License. See the LICENSE and NOTION files for more info.
 
 ## Технологический стек
-- **Kotlin 1.8.10**
-- **Okhttp3 4.10.0**
+- **Kotlin 2.3.10**
+- **Okhttp3 5.3.2**

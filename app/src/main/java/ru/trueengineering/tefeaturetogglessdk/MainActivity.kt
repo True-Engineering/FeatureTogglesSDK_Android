@@ -3,6 +3,8 @@ package ru.trueengineering.tefeaturetogglessdk
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import ru.trueengineering.tefeaturetoggles.FeatureTogglesSdk
 import ru.trueengineering.tefeaturetogglessdk.databinding.ActivityMainBinding
 
@@ -25,6 +27,12 @@ class MainActivity : AppCompatActivity() {
             .headerKey("FFHASH")
             .baseUrl("http://localhost:8080")
             .initialize()
+
+        lifecycleScope.launch {
+            viewModel.error.collect {
+                Toast.makeText(this@MainActivity, it.localizedMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         binding.button.setOnClickListener {
             viewModel.call()

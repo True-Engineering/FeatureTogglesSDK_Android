@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.coroutines.executeAsync
 import ru.trueengineering.tefeaturetoggles.data.storage.model.SdkFlagsWithHash
 import ru.trueengineering.tefeaturetoggles.domain.FeatureFlagService
 import java.io.IOException
@@ -24,10 +25,10 @@ internal class FeatureFlagServiceImpl(
                     .url(endpoint)
                     .get()
                     .build()
-                val response = httpClient.newCall(request).execute()
+                val response = httpClient.newCall(request).executeAsync()
                 val body = response.body
 
-                if (response.isSuccessful && body != null) {
+                if (response.isSuccessful) {
                     val responseModel = gson
                         .fromJson(body.string(), FeatureFlagsWithHash::class.java)
 

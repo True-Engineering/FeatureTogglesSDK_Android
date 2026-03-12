@@ -9,6 +9,7 @@ inline fun <reified T : ViewModel> ComponentActivity.viewModelsFactory(crossinli
     return viewModels {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
                 return viewModelInitialization.invoke() as T
             }
         }
