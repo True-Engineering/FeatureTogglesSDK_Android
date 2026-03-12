@@ -45,7 +45,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.True-Engineering"
             artifactId = "FeatureTogglesSDK_Android"
-            version = "1.1.6"
+            version = "1.1.7"
 
             afterEvaluate {
                 from(components["release"])
